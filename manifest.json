@@ -1,0 +1,23 @@
+{
+    "manifest_version": 3,
+    "name": "Developer Vault",
+    "version": "3.0",
+    "description": "Professional developer tool — capture API calls, storage, and page sources.",
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Developer Vault"
+    },
+    "permissions": [
+        "debugger",
+        "activeTab",
+        "downloads",
+        "tabs",
+        "storage"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ]
+}
