@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@700;900&display=swap');
+
+  :root {
+    --bg:        #12151a;
+    --bg2:       #181c23;
+    --surface:   #1e222c;
+    --surface2:  #252b37;
+    --border:    #2e3445;
+    --green:     #00e676;
+    --green-dim: #00e67618;
+    --green-muted: #00e67640;
+    --cyan:      #29b6f6;
+    --yellow:    #ffd54f;
+    --orange:    #ffa726;
+    --red:       #ef5350;
+    --purple:    #ce93d8;
+    --text:      #e2e8f4;
+    --text2:     #a0aabb;
+    --muted:     #5a6477;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    --display: 'Orbitron', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    width: 560px;
+    height: 620px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 10px 14px;
+    background: var(--surface);
+    border-bottom: 2px solid var(--green-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .logo-title {
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--green);
+    letter-spacing: 2px;
+  }
+  .logo-sub {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: all .3s; }
+  .live-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 1.2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .status-pill {
+    padding: 3px 10px; border-radius: 4px; font-size: 10px;
+    font-family: var(--display); letter-spacing: 1px;
+    background: var(--surface2); color: var(--muted);
+    border: 1px solid var(--border); transition: all .3s;
+  }
+  .status-pill.active { color: var(--green); border-color: var(--green-muted); }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; padding: 8px 2px; text-align: center; cursor: pointer;
+    font-size: 9px; font-weight: 600; color: var(--muted);
+    border-bottom: 2px solid transparent; transition: all .2s;
+    user-select: none; font-family: var(--display); letter-spacing: .5px;
+  }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); background: var(--green-dim); }
+  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+  .badge {
+    display: inline-block; background: #00e67622; color: var(--green);
+    border-radius: 3px; padding: 0 4px; font-size: 8px; margin-left: 2px;
+    font-family: var(--mono); border: 1px solid var(--green-muted);
+  }
+
+  /* ── Panel ── */
+  .panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .panel.active { display: flex; }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: flex; gap: 16px; padding: 4px 12px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    font-size: 9px; color: var(--text2); flex-shrink: 0; font-family: var(--mono);
+  }
+  .stat-val { color: var(--green); font-weight: 600; margin-left: 4px; }
+  .stat-err { color: var(--red); }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex; gap: 5px; padding: 6px 10px;
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    flex-shrink: 0; flex-wrap: wrap; align-items: center;
+  }
+  .sw { flex: 1; min-width: 90px; position: relative; }
+  .sw input {
+    width: 100%; padding: 5px 8px 5px 22px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text); font-family: var(--mono); font-size: 10px; outline: none;
+  }
+  .sw input::placeholder { color: var(--muted); }
+  .sw input:focus { border-color: var(--green); }
+  .si { position: absolute; left: 7px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+  select {
+    padding: 5px 6px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text); font-size: 10px; outline: none;
+    cursor: pointer; font-family: var(--mono);
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 5px 10px; border: 1px solid; border-radius: 4px;
+    font-weight: 600; font-size: 9px; cursor: pointer; transition: all .15s;
+    white-space: nowrap; font-family: var(--mono); text-transform: uppercase;
+  }
+  .btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .g  { background: #00e67610; color: var(--green);  border-color: #00e67640; }
+  .r  { background: #ef535010; color: var(--red);    border-color: #ef535040; }
+  .b  { background: #29b6f610; color: var(--cyan);   border-color: #29b6f640; }
+  .y  { background: #ffd54f10; color: var(--yellow); border-color: #ffd54f40; }
+  .o  { background: #ffa72610; color: var(--orange); border-color: #ffa72640; }
+  .d  { background: transparent; color: var(--muted); border-color: var(--border); }
+  .p  { background: #ce93d810; color: var(--purple); border-color: #ce93d840; }
+
+  /* ── Net list ── */
+  .net-list { flex: 1; overflow-y: auto; }
+  .net-item {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 10px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background .1s;
+  }
+  .net-item:hover { background: var(--surface2); }
+  .net-item.selected { background: #00e67610; border-left: 2px solid var(--green); }
+  .net-item.ws-item { border-left: 2px solid var(--cyan); }
+
+  /* Method tags */
+  .method-tag {
+    font-size: 9px; font-weight: 600; padding: 2px 5px; border-radius: 3px;
+    min-width: 42px; text-align: center; flex-shrink: 0;
+  }
+  .m-GET    { background: #00e67614; color: var(--green);  border: 1px solid #00e67630; }
+  .m-POST   { background: #29b6f614; color: var(--cyan);   border: 1px solid #29b6f630; }
+  .m-PUT    { background: #ffa72614; color: var(--orange); border: 1px solid #ffa72630; }
+  .m-DELETE { background: #ef535014; color: var(--red);    border: 1px solid #ef535030; }
+  .m-PATCH  { background: #ffd54f14; color: var(--yellow); border: 1px solid #ffd54f30; }
+  .m-OTHER,.m-WS { background: #ffffff08; color: var(--muted); border: 1px solid var(--border); }
+
+  /* Status badges */
+  .status-badge {
+    font-size: 9px; font-weight: 600; padding: 2px 5px; border-radius: 3px;
+    min-width: 32px; text-align: center; flex-shrink: 0;
+  }
+  .s-2xx { background: #00e67614; color: var(--green);  border: 1px solid #00e67630; }
+  .s-3xx { background: #ffd54f14; color: var(--yellow); border: 1px solid #ffd54f30; }
+  .s-4xx { background: #ffa72614; color: var(--orange); border: 1px solid #ffa72630; }
+  .s-5xx { background: #ef535014; color: var(--red);    border: 1px solid #ef535030; }
+
+  .gql-tag {
+    font-size: 8px; padding: 1px 4px; border-radius: 3px;
+    background: #ce93d814; color: var(--purple); border: 1px solid #ce93d830; flex-shrink: 0;
+  }
+  .net-url {
+    flex: 1; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; font-size: 10px; color: var(--text);
+  }
+  .net-timing { font-size: 9px; color: var(--muted); min-width: 34px; text-align: right; flex-shrink: 0; }
+  .net-timing.slow { color: var(--orange); }
+  .net-timing.very-slow { color: var(--red); }
+
+  /* ── Detail pane ── */
+  .detail-pane {
+    height: 190px; border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0; background: var(--bg2);
+  }
+  .detail-tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .detail-tab {
+    padding: 6px 11px; font-size: 9px; font-weight: 600; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap;
+    transition: all .2s; font-family: var(--mono); text-transform: uppercase;
+  }
+  .detail-tab.active { color: var(--green); border-bottom-color: var(--green); background: var(--green-dim); }
+  .detail-header {
+    display: flex; align-items: center; padding: 3px 8px;
+    background: var(--bg); border-bottom: 1px solid var(--border); gap: 6px; flex-shrink: 0;
+  }
+  .detail-url-text { flex: 1; color: var(--muted); font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .detail-body {
+    flex: 1; overflow-y: auto; padding: 8px 10px;
+    font-size: 10px; line-height: 1.7; white-space: pre-wrap;
+    word-break: break-all; color: var(--text);
+  }
+  /* Binary data warning */
+  .binary-notice {
+    padding: 12px 16px; color: var(--orange); font-size: 10px; line-height: 1.8;
+  }
+
+  /* Copy btn */
+  .copy-btn {
+    padding: 2px 8px; font-size: 8px; background: #00e67610;
+    color: var(--green); border: 1px solid #00e67630; border-radius: 3px;
+    cursor: pointer; font-family: var(--mono);
+  }
+  .copy-btn:hover { background: #00e67620; }
+  .copy-btn.copied { color: var(--yellow); border-color: #ffd54f30; }
+
+  /* ── Storage ── */
+  .storage-section { padding: 10px; border-bottom: 1px solid var(--border); }
+  .storage-section h3 { font-size: 10px; color: var(--green); margin-bottom: 6px; font-family: var(--mono); }
+  .kv-row {
+    display: flex; gap: 8px; padding: 5px 8px; border-radius: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; transition: border-color .15s; margin-bottom: 3px;
+  }
+  .kv-row:hover { border-color: var(--green-muted); }
+  .kv-key { color: var(--cyan); font-size: 10px; min-width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kv-val { color: var(--text2); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+  /* ── Sources ── */
+  .src-type { font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 3px; flex-shrink: 0; }
+  .t-Script    { background: #ffd54f14; color: var(--yellow); border: 1px solid #ffd54f30; }
+  .t-Stylesheet { background: #29b6f614; color: var(--cyan);   border: 1px solid #29b6f630; }
+  .t-Document  { background: #00e67614; color: var(--green);  border: 1px solid #00e67630; }
+  .src-url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .src-size { font-size: 9px; color: var(--muted); flex-shrink: 0; }
+
+  /* ── Tools ── */
+  .tool-section { padding: 12px; border-bottom: 1px solid var(--border); }
+  .tool-section h3 { font-size: 10px; color: var(--green); margin-bottom: 8px; font-family: var(--mono); letter-spacing: 1px; }
+  .tool-section textarea, .tool-section input[type=text] {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text); font-family: var(--mono);
+    font-size: 10px; padding: 6px 8px; outline: none; resize: vertical; line-height: 1.5;
+  }
+  .tool-section textarea:focus, .tool-section input[type=text]:focus { border-color: var(--green); }
+  .tool-output {
+    margin-top: 6px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 8px; font-size: 10px; color: var(--text);
+    white-space: pre-wrap; word-break: break-all; max-height: 100px; overflow-y: auto; line-height: 1.6;
+  }
+  .tool-row { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .jwt-part { margin-top: 6px; }
+  .jwt-part h4 { font-size: 9px; color: var(--text2); margin-bottom: 3px; }
+  .jwt-content {
+    background: var(--bg); border: 1px solid var(--border); padding: 5px 8px;
+    border-radius: 4px; font-size: 9px; color: var(--text); white-space: pre-wrap;
+    word-break: break-all; max-height: 70px; overflow-y: auto;
+  }
+  .stats-detail { font-size: 10px; color: var(--text2); line-height: 2; }
+  .stats-detail span { color: var(--green); margin-left: 6px; }
+
+  /* ── Log ── */
+  .log-list { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 3px; }
+  .log-item {
+    padding: 4px 8px; border-radius: 4px; font-size: 10px;
+    background: var(--surface); border-left: 2px solid transparent; line-height: 1.5;
+  }
+  .log-item .ts { color: var(--muted); margin-right: 6px; }
+  .log-net     { border-left-color: var(--green);  color: var(--text2); }
+  .log-storage { border-left-color: var(--cyan);   color: var(--text2); }
+  .log-sources { border-left-color: var(--yellow); color: var(--text2); }
+  .log-error   { border-left-color: var(--red);    color: var(--red); }
+  .log-export  { border-left-color: var(--orange); color: var(--text2); }
+  .log-tools   { border-left-color: var(--purple); color: var(--text2); }
+
+  /* ── Bottom ── */
+  .bottom-bar {
+    display: flex; gap: 6px; padding: 7px 10px;
+    background: var(--surface); border-top: 2px solid var(--green-muted); flex-shrink: 0;
+  }
+  .credit-bar {
+    background: var(--bg); border-top: 1px solid var(--border);
+    padding: 3px 14px; display: flex; align-items: center;
+    justify-content: space-between; flex-shrink: 0;
+  }
+  .credit-bar .c1, .credit-bar .c3 { font-size: 8px; color: var(--muted); letter-spacing: 1px; }
+  .credit-bar .c2 { font-family: var(--display); font-size: 9px; color: var(--green); letter-spacing: 2px; font-weight: 700; }
+
+  /* ── Empty ── */
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); }
+  .empty-state .icon { font-size: 28px; opacity: .3; }
+  .empty-state p { font-size: 11px; }
+  .empty-state .hint { font-size: 9px; color: var(--border); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <div class="logo-title">DEVELOPER VAULT</div>
+    <div class="logo-sub">NETWORK · STORAGE · SOURCES · TOOLS</div>
+  </div>
+  <div class="header-right">
+    <div class="live-dot" id="live-dot"></div>
+    <div class="status-pill" id="tracking-pill">IDLE</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" data-tab="network">NETWORK <span class="badge" id="badge-net">0</span></div>
+  <div class="tab" data-tab="storage">STORAGE</div>
+  <div class="tab" data-tab="sources">SOURCES <span class="badge" id="badge-src">0</span></div>
+  <div class="tab" data-tab="websocket">WEBSOCKET <span class="badge" id="badge-ws">0</span></div>
+  <div class="tab" data-tab="tools">TOOLS</div>
+  <div class="tab" data-tab="log">LOG</div>
+</div>
+
+<!-- NETWORK -->
+<div class="panel active" id="panel-network">
+  <div class="stats-bar">
+    <span>Requests: <span class="stat-val" id="stat-req">0</span></span>
+    <span>Size: <span class="stat-val" id="stat-size">0 B</span></span>
+    <span>Errors: <span class="stat-val stat-err" id="stat-err">0</span></span>
+  </div>
+  <div class="toolbar">
+    <button class="btn g" id="btn-start">▶ START</button>
+    <button class="btn r" id="btn-stop">■ STOP</button>
+    <div class="sw"><span class="si">🔍</span><input type="text" id="net-search" placeholder="Filter URL..."></div>
+    <select id="net-method-filter">
+      <option value="">ALL</option><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option>
+    </select>
+    <select id="net-status-filter">
+      <option value="">STATUS</option><option value="2">2xx</option><option value="3">3xx</option><option value="4">4xx</option><option value="5">5xx</option>
+    </select>
+    <button class="btn b" id="btn-export-net">↓ DUMP</button>
+    <button class="btn y" id="btn-export-har">HAR</button>
+  </div>
+  <div class="net-list" id="net-list">
+    <div class="empty-state"><div class="icon">◎</div><p>No packets captured</p><div class="hint">Click START → reload page</div></div>
+  </div>
+  <div class="detail-pane" id="detail-pane" style="display:none">
+    <div class="detail-tabs">
+      <div class="detail-tab active" data-dtab="response">RESPONSE</div>
+      <div class="detail-tab" data-dtab="request">REQUEST</div>
+      <div class="detail-tab" data-dtab="headers">HEADERS</div>
+      <div class="detail-tab" data-dtab="postdata">PAYLOAD</div>
+      <div class="detail-tab" data-dtab="graphql">GRAPHQL</div>
+      <div class="detail-tab" data-dtab="curl">cURL</div>
+    </div>
+    <div class="detail-header">
+      <span class="detail-url-text" id="detail-url"></span>
+      <button class="copy-btn" id="btn-copy-response">COPY</button>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+  </div>
+</div>
+
+<!-- STORAGE -->
+<div class="panel" id="panel-storage">
+  <div class="toolbar">
+    <button class="btn g" id="btn-scrape-storage">↓ EXTRACT</button>
+    <button class="btn p" id="btn-scrape-idb">↓ INDEXEDDB</button>
+    <button class="btn b" id="btn-export-storage">↓ DUMP</button>
+    <button class="copy-btn" id="btn-copy-storage-all" style="padding:5px 10px;">COPY ALL</button>
+  </div>
+  <div style="flex:1;overflow-y:auto" id="storage-view">
+    <div class="empty-state"><div class="icon">◎</div><p>Storage empty</p><div class="hint">Click EXTRACT</div></div>
+  </div>
+</div>
+
+<!-- SOURCES -->
+<div class="panel" id="panel-sources">
+  <div class="toolbar">
+    <button class="btn g" id="btn-scrape-sources">↓ EXTRACT</button>
+    <button class="btn b" id="btn-export-sources">↓ DUMP ZIP</button>
+    <div class="sw"><span class="si">🔍</span><input type="text" id="src-search" placeholder="Filter files..."></div>
+  </div>
+  <div class="net-list" id="src-list">
+    <div class="empty-state"><div class="icon">◎</div><p>No source files</p><div class="hint">Click EXTRACT</div></div>
+  </div>
+</div>
+
+<!-- WEBSOCKET -->
+<div class="panel" id="panel-websocket">
+  <div class="toolbar">
+    <button class="btn g" id="btn-start-ws">▶ START WS</button>
+    <button class="btn b" id="btn-export-ws">↓ DUMP</button>
+    <span style="font-size:9px;color:var(--muted)">Start → open page with WebSocket connections</span>
+  </div>
+  <div class="net-list" id="ws-list">
+    <div class="empty-state"><div class="icon">◎</div><p>No WS connections</p><div class="hint">Start → open page with WebSocket</div></div>
+  </div>
+  <div id="ws-detail" style="display:none;height:190px;border-top:1px solid var(--border);flex-direction:column;background:var(--bg2);">
+    <div style="padding:5px 10px;background:var(--surface);border-bottom:1px solid var(--border);font-size:9px;color:var(--green);" id="ws-detail-url"></div>
+    <div style="flex:1;overflow-y:auto;" id="ws-messages"></div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<div class="panel" id="panel-tools" style="overflow-y:auto;">
+
+  <div class="tool-section">
+    <h3>🔑 JWT DECODER</h3>
+    <textarea id="jwt-input" rows="2" placeholder="Paste JWT token here..."></textarea>
+    <div class="tool-row">
+      <button class="btn g" id="btn-decode-jwt">DECODE</button>
+      <button class="btn d" id="btn-jwt-from-storage">FROM STORAGE</button>
+    </div>
+    <div id="jwt-output" style="display:none;margin-top:6px;">
+      <div class="jwt-part"><h4>HEADER</h4><div class="jwt-content" id="jwt-header"></div></div>
+      <div class="jwt-part"><h4>PAYLOAD</h4><div class="jwt-content" id="jwt-payload"></div></div>
+      <div class="jwt-part"><h4>EXPIRES</h4><div class="jwt-content" id="jwt-exp"></div></div>
+    </div>
+  </div>
+
+  <div class="tool-section">
+    <h3>⚡ cURL GENERATOR</h3>
+    <p style="font-size:9px;color:var(--muted);margin-bottom:6px;">Select a request in NETWORK tab first</p>
+    <div class="tool-row">
+      <button class="btn g" id="btn-gen-curl">GENERATE FROM SELECTED</button>
+    </div>
+    <div class="tool-output" id="curl-output" style="display:none;"></div>
+    <div class="tool-row" id="curl-copy-row" style="display:none;">
+      <button class="copy-btn" id="btn-copy-curl">COPY cURL</button>
+    </div>
+  </div>
+
+  <div class="tool-section">
+    <h3>📊 HAR EXPORT</h3>
+    <p style="font-size:9px;color:var(--muted);margin-bottom:6px;">Export all network requests as HAR 1.2 — Chrome DevTools compatible</p>
+    <div class="tool-row">
+      <button class="btn b" id="btn-export-har-tools">EXPORT .HAR FILE</button>
+    </div>
+  </div>
+
+  <div class="tool-section">
+    <h3>📈 SESSION STATS</h3>
+    <div class="stats-detail" id="session-stats"></div>
+    <div class="tool-row"><button class="btn d" id="btn-refresh-stats">REFRESH</button></div>
+  </div>
+
+</div>
+
+<!-- LOG -->
+<div class="panel" id="panel-log">
+  <div class="log-list" id="log-list"></div>
+</div>
+
+<!-- Bottom -->
+<div class="bottom-bar">
+  <button class="btn o" id="btn-export-all" style="flex:1">↓ EXPORT ALL → ZIP</button>
+  <button class="btn r" id="btn-clear">✕ WIPE</button>
+</div>
+<div class="credit-bar">
+  <span class="c1">BUILT BY</span>
+  <span class="c2">AMAN RANJAN</span>
+  <span class="c3">LACSA TECH</span>
+</div>
+
+<script src="jszip.min.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
