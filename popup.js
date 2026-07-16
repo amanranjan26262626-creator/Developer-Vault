@@ -1,3 +1,4 @@
+// Developer Vault popup controller.
 // Developer Vault — popup.js v4.2
 // Fix 1: Auto-refresh sirf network list update kare — detail pane stable rahe
 // Fix 2: Sources/Storage detail pane alag DOM mein — innerHTML rebuild se affect na ho
